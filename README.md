@@ -32,7 +32,7 @@ Generate images with OpenAI from inside Claude, and see token usage, cost per im
 
 ## License / 许可证
 
-**PolyForm Noncommercial 1.0.0** — 个人学习、自用免费。
-**禁止商用**：不能拿去卖、转售，或用来帮别人搭建收费。需要商用授权请联系作者。
+个人使用完全免费，欢迎拿去玩、改、分享。
+想用在生意上（比如帮客户搭建、打包出售），欢迎找我聊授权 🙌
 
-Free for personal and non-commercial use. Commercial use (selling, reselling, paid setup or hosting for others) requires a separate license from the author. See [LICENSE](LICENSE).
+Free for personal use. Using it in a business (paid setups, reselling)? Just reach out for a commercial license. Details: [PolyForm Noncommercial 1.0.0](LICENSE).
