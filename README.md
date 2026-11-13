@@ -30,6 +30,9 @@ Generate images with OpenAI from inside Claude, and see token usage, cost per im
 - 模型名默认 `gpt-image-2.6-sunburst`，OpenAI 更新后在 Generate Image 节点里改。
 - 不存储任何图片。
 
-## License
+## License / 许可证
 
-MIT
+**PolyForm Noncommercial 1.0.0** — 个人学习、自用免费。
+**禁止商用**：不能拿去卖、转售，或用来帮别人搭建收费。需要商用授权请联系作者。
+
+Free for personal and non-commercial use. Commercial use (selling, reselling, paid setup or hosting for others) requires a separate license from the author. See [LICENSE](LICENSE).
