@@ -1,0 +1,143 @@
+{
+  "name": "OpenAI Image Core",
+  "nodes": [
+    {
+      "id": "3b3624fc-e93a-41b8-b158-093bc8a2d71b",
+      "name": "Image Request Input",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        300
+      ],
+      "parameters": {
+        "inputSource": "workflowInputs",
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "prompt",
+              "type": "string"
+            },
+            {
+              "name": "size",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "5ce245bb-f66b-4ad5-8951-3d010d422bbf",
+      "name": "Generate Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        540,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/images/generations",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ { model: \"gpt-image-2.6-sunburst\", prompt: $json.prompt, size: $json.size || \"1024x1024\" } }}",
+        "options": {
+          "timeout": 240000
+        }
+      }
+    },
+    {
+      "id": "cf33f12a-f73b-4e5b-b987-60d9b0997022",
+      "name": "Get Costs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        840,
+        300
+      ],
+      "onError": "continueRegularOutput",
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.openai.com/v1/organization/costs",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "specifyQuery": "keypair",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "start_time",
+              "value": "={{ Math.floor(new Date(\"2026-01-01T00:00:00Z\").getTime() / 1000) }}"
+            },
+            {
+              "name": "bucket_width",
+              "value": "1d"
+            },
+            {
+              "name": "limit",
+              "value": "31"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "b6591d91-4d9e-4f77-938c-4fce2ecb9426",
+      "name": "Build Usage Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1140,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// ====== CONFIG / 配置 ======\nconst BASE_BALANCE = 5.00;   // 你在 BASE_DATE 那天看到的 OpenAI 余额 (USD)\n// BASE_DATE 在 \"Get Costs\" 节点的 start_time 里改\nconst RATE = { textIn: 5, imageIn: 8, imageOut: 30 }; // USD per 1M tokens\n// ===========================\n\nconst img = $('Generate Image').first().json;\nconst r = Array.isArray(img) ? img[0] : img;\nconst u = r.usage || {};\nconst inD = u.input_tokens_details || {};\nconst outD = u.output_tokens_details || {};\nconst textIn = inD.text_tokens ?? u.input_tokens ?? 0;\nconst imageIn = inD.image_tokens ?? 0;\nconst imageOut = outD.image_tokens ?? u.output_tokens ?? 0;\nconst cost = (textIn * RATE.textIn + imageIn * RATE.imageIn + imageOut * RATE.imageOut) / 1e6;\n\nlet spent = null;\ntry {\n  const c = $('Get Costs').first().json;\n  if (c && Array.isArray(c.data)) {\n    spent = 0;\n    for (const b of c.data) for (const x of (b.results || [])) spent += Number((x.amount && x.amount.value) || 0);\n  }\n} catch (e) {}\n\nconst f = (n) => '$' + n.toFixed(4);\nconst lines = [];\nlines.push('本次用量：输入 ' + (u.input_tokens || 0) + ' + 输出 ' + (u.output_tokens || 0) + ' = ' + (u.total_tokens || 0) + ' token');\nlines.push('本次花费：约 ' + f(cost));\nif (spent !== null) {\n  lines.push('基准日起累计花费：' + f(spent) + '（官方统计，可能有延迟）');\n  lines.push('估算剩余余额：约 ' + f(BASE_BALANCE - spent));\n} else {\n  lines.push('累计花费和剩余余额：查询失败（检查 Admin key 凭据）');\n}\nconst first = r.data && r.data[0] ? r.data[0] : {};\nreturn [{ json: { usage_summary: lines.join('\\n'), size: r.size, quality: r.quality, b64_json: first.b64_json } }];"
+      }
+    }
+  ],
+  "connections": {
+    "Image Request Input": {
+      "main": [
+        [
+          {
+            "node": "Generate Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image": {
+      "main": [
+        [
+          {
+            "node": "Get Costs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Costs": {
+      "main": [
+        [
+          {
+            "node": "Build Usage Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

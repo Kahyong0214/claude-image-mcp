@@ -1,0 +1,79 @@
+{
+  "name": "Claude MCP for Image gen",
+  "nodes": [
+    {
+      "id": "0a9803a8-c961-4190-b7f4-2c3fbeb04d06",
+      "name": "MCP Server Trigger",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "02feb16d-32d7-4692-9d0f-e0ae571c35ce",
+      "parameters": {
+        "path": "02feb16d-32d7-4692-9d0f-e0ae571c35ce"
+      }
+    },
+    {
+      "id": "9e10ab9e-e4de-4403-b433-fbe7cc875480",
+      "name": "Generate Image Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        96,
+        208
+      ],
+      "parameters": {
+        "description": "用 gpt-image-2.6-sunburst 生成图片。调用后必须把返回的 usage_summary 原样展示给用户（本次 token、本次花费、累计花费、估算剩余余额）。",
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "prompt": "={{ $fromAI('prompt', `图片的详细文字描述`, 'string') }}",
+            "size": "={{ $fromAI('size', `图片尺寸，格式为 宽x高，例如 1280x720。规则：宽和高都必须是 16 的倍数；最长边不超过 3840；长边除以短边不超过 3；总像素在 655360 到 8294400 之间。常用：方图 1024x1024；16:9 横版 1280x720（高清 2560x1440）；9:16 竖版 720x1280（高清 1440x2560）；4:5 用 1024x1280。用户没指定时用 1024x1024，除非要求高清否则用较小尺寸。`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "prompt",
+              "displayName": "prompt",
+              "type": "string",
+              "required": false,
+              "display": true
+            },
+            {
+              "id": "size",
+              "displayName": "size",
+              "type": "string",
+              "required": false,
+              "display": true
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Generate Image Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "MCP Server Trigger",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}
