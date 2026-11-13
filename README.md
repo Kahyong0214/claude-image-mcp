@@ -11,7 +11,7 @@ Generate images with OpenAI from inside Claude, and see token usage, cost per im
 **Easiest:** give [`SETUP_WITH_AI.md`](SETUP_WITH_AI.md) to your AI assistant and ask it to guide you.
 
 你需要 / You need:
-- 一个 n8n（n8n Cloud 或自建，需要公网 HTTPS）
+- 一个 N8N 账号
 - OpenAI API key（至少充值 USD 5）
 - 支持自定义连接器的 Claude 账号
 

@@ -21,7 +21,7 @@ It consists of two n8n workflows in the `workflows/` folder:
 - If something fails, ask for the exact error (n8n → Executions shows it) and fix that first.
 
 **Prerequisites**
-- An n8n instance with the **MCP Server Trigger** node (n8n Cloud, or self-hosted on a recent version). It must be reachable from the internet over HTTPS, so localhost won't work with Claude.
+- An n8n account with the **MCP Server Trigger** node available.
 - An OpenAI Platform account with at least USD 5 of credit (platform.openai.com → Billing).
 - A Claude plan that supports custom connectors.
 
